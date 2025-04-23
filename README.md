@@ -1,4 +1,4 @@
-# Placeholder Framework
+# `<!-- placeholder-framework -->`
 
 A zero‑config static‑site generator that swaps HTML **comment placeholders** for JavaScript components, leaving you with fully‑rendered, prettified pages and correctly‑rewired asset paths.  Think of it as *server‑side includes* on steroids — powered by plain Node.js.
 <br>
@@ -9,14 +9,15 @@ A zero‑config static‑site generator that swaps HTML **comment placeholders**
 
 ---
 
-## ✨  Highlights
+## ✨  Features
 
-* **HTML‑first** — author pages in raw HTML; sprinkle placeholders like `<!-- hero -->` where components should render.
+* **HTML‑first** — write your pages in raw HTML; sprinkle placeholders like `<!-- hero -->` where components should render.
 * **No build config** — everything lives in conventional folders (`_pages`, `_components`, `_data`, `public`).
 * **One‑file builder** — `_build.js` ships with the package; no Babel/Webpack required.
 * **Starter template** included (optional).
 * **VS Code integration** — automatic *Tasks* & *Live Server* settings.
 * **CLI** for scaffolding, building & watching with hot‑rebuilds (via `nodemon`).
+<br>
 
 ---
 
@@ -25,156 +26,165 @@ A zero‑config static‑site generator that swaps HTML **comment placeholders**
 ```bash
 # install the latest release globally
 npm install -g placeholder-framework
-
-# — or test the repo locally without publishing —
-# A) npm link (development workflow)
-cd /path/to/placeholder-framework && npm link
-# B) packed tarball
-npm pack && npm install -g ./placeholder-framework-*.tgz
 ```
 
-> Requires **Node 16+** (works fine on Node 22) and npm/yarn/pnpm of your choice.
+> Requires **Node 16+**.
+
+<br>
 
 ---
 
-## ⚡  Quick start
+## ⚡️ Quick start
 
 ```bash
-placeholder-framework create ./_MyPage
+placeholder-framework create ./MySite
+cd MySite
+placeholder-framework watch .   #   live‑rebuilds + Live‑Server (VS Code)
 ```
-
-Interactive prompts:
-
-| Question | Meaning |
-|----------|---------|
-| *Do you want to use the starter template?* | **Y** → copy the built‑in `starter-template/` folder.<br>**N** → create an empty scaffold (see below). |
-| *Enter a name for your build:* | Folder name inside `/build` that will receive compiled files, e.g. `getmypage`. |
-| *Are you using VS Code?* | **Y** → adds a Task & Live Server root.<br>**N** → skips editor integration. |
-
-### What gets generated (empty scaffold)
-
-```
-_MyPage/
-├─ public/          # your static assets (copied verbatim)
-├─ _components/     # `*.js` component functions
-├─ _data/           # `*.json` data for components
-├─ _pages/          # source `.html` files (placeholders allowed)
-│  └─ index.html
-├─ componentsMap.js # placeholder ↔ component ↔ data mapping
-└─ package.json     # local dev scripts + buildFolder name
-```
-
-Starter projects get the same structure pre‑filled with a Bootstrap demo and working components.
+Start your Live‑Server (if using VS Code) and you should see your page.
+<br>
 
 ---
 
-## 🛠️  CLI commands
+## 🧑‍💻  How to use it
+### Let's build a page from scratch
 
-| Command | Description |
-|---------|-------------|
-| `placeholder-framework create <dir>` | Scaffold a new project inside `<dir>`. |
-| `placeholder-framework build <dir> [--ignore-assets]` | Run **one** build. Cleans `/build/<name>` and copies `/public` unless `--ignore-assets` is set. |
-| `placeholder-framework watch <dir> [--ignore-assets]` | Rebuild on every file change (powered by `nodemon`). |
+Below we build a **Hello World** landing page with two components: a header that needs no external data and a hero section whose copy comes from a separate JSON file.
 
-### Examples
+```
+MySite/
+├─ public/                #   static assets
+│   └─ img/
+│       └─ hero.jpg
+├─ _components/
+│   ├─ header.js          #   no data needed
+│   └─ heroSection.js     #   expects JSON
+├─ _data/
+│   └─ heroSection.json   #   copy for the hero
+├─ _pages/
+│   └─ index.html         #   uses the placeholders
+└─ componentsMap.js       #   tells the builder what is what
+```
+<br>
 
-```bash
-# single build, cleaning /public
-placeholder-framework build .
+### 1.  Create the components
 
-# build without recopying assets
-placeholder-framework build . --ignore-assets
-
-# live‑watch
-placeholder-framework watch .
+**`_components/header.js`** (no data)
+```js
+module.exports = function header() {
+  return `
+    <header class="mb-5 text-center">
+      <h1>Hello World 🚀</h1>
+    </header>`;
+};
 ```
 
----
+**`_components/heroSection.js`** (with data)
+```js
+module.exports = function hero({ heading, paragraph, image }) {
+  return `
+    <section class="hero d-flex flex-column flex-md-row align-items-center gap-4">
+      <img src="${image}" class="hero__img rounded shadow" alt="hero image">
+      <div>
+        <h2>${heading}</h2>
+        <p class="lead">${paragraph}</p>
+      </div>
+    </section>`;
+};
+```
+<br>
 
-## 🧩  Mapping components (`componentsMap.js`)
+### 2.  Provide component data (optional)
 
+**`_data/heroSection.json`**
+```json
+{
+  "heading": "Blazing‑fast static sites",
+  "paragraph": "Write HTML, sprinkle placeholders – we’ll handle the rest.",
+  "image": "/public/img/hero.jpg"
+}
+```
+> <br> **Asset paths**: always start paths with **`/public/`** inside `.json` data files, components `.js` files and any public assets like `.js` scripts or `.css` styles.  The builder rewrites them to the correct relative URL no matter where the final page ends up.<br><br>For example, if a page using our `<!-- heroSection -->` relies under `/_pages/blog/post/index.html` the rendered `<img src=` would be `"../../public/img/hero.jpg"` <br><br>
+
+<br>
+
+### 3.  Map components ⇒ placeholders
+
+**`componentsMap.js`**
 ```js
 module.exports = [
   {
-    placeholder: "<!-- hero -->",       // how it appears in HTML
-    dataFile:    "hero.json",           // relative to /_data ("" if none)
-    component:   "hero.js"              // relative to /_components
+    placeholder: "<!-- header -->",   // how you’ll reference it in HTML
+    dataFile:    "",                  // empty string → no dataFile
+    component:   "header.js"          // relative to /_components
   },
-  // more mappings…
+  {
+    placeholder: "<!-- heroSection -->",
+    dataFile:    "heroSection.json",  // relative to /_data
+    component:   "heroSection.js"
+  }
 ];
 ```
+<br>
 
-Inside an HTML page:
+### 4. Write the page using placeholders
 
+**`_pages/index.html`**
 ```html
-<body>
-  <!-- hero -->
-  <!-- footerSection -->
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MySite ‑ Home</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+  </head>
+  <body class="container py-4">
+
+    <!-- header -->
+
+    <!-- heroSection -->
+
+    <footer class="mt-5 small text-muted text-center">Built with placeholder‑framework 🧩</footer>
+  </body>
+</html>
+```
+<br>
+
+### 5.  Add assets
+
+* Put **every** image/CSS/JS asset somewhere under **`/public`**.  When the site is built, the entire `public` folder is copied as‑is to `<buildFolder>/public`.
+* Refer to an asset with an **absolute path** that starts with `/public/…`.
+  *In our JSON above we used `/public/img/hero.jpg`; in the page we included `/public/css/style.css`.*
+<br>
+
+### 6.  Build & preview
+
+```bash
+placeholder-framework build .
+# open build/<name>/index.html in your browser
 ```
 
-Each component is just a function that receives parsed JSON and returns a string of HTML:
+That’s it!  The builder:
+1. Replaces `<!-- header -->` + `<!-- heroSection -->` with rendered HTML.
+2. Parses `heroSection.json` and passes it to `heroSection.js`.
+3. Copies `/public` alongside the pages and rewrites asset URLs so they stay correct.
 
-```js
-// _components/hero.js
-module.exports = ({ title, tagline }) => `
-  <section class="hero">
-    <h1>${title}</h1>
-    <p>${tagline}</p>
-  </section>
-`;
-```
+Feel free to add more pages under `/_pages` and more components/data/mappings as you grow.
+<br>
 
 ---
 
-## ⚙️  VS Code integration
+## 🛠️  CLI commands
 
-If you answered **Y** to *Are you using VS Code?* the CLI will:
-
-1. Append a task to `.vscode/tasks.json`:
-   ```jsonc
-   {
-     "label": "[placeholder-framework]: \"/getmypage\" from... \"_MyPage\"",
-     "type": "shell",
-     "command": "npm run watch:_MyPage",
-     "options": { "cwd": "${workspaceFolder}/_MyPage" },
-     "problemMatcher": []
-   }
-   ```
-2. Set `liveServer.settings.port = 3000` and `liveServer.settings.root = "/getmypage"` in `.vscode/settings.json` so hitting **Go Live** serves your freshly built pages.
-
----
-
-## 🏗️  How the build works
-
-1. `_build.js` reads `componentsMap.js` and builds a lookup table.
-2. For every `*.html` under `/_pages`, it:
-   * loads the referenced component & data,
-   * replaces the placeholder comment with rendered HTML,
-   * rewrites `/public/...` URLs so they remain correct at any folder depth,
-   * prettifies the final markup (`js-beautify`).
-3. `--clean` mode wipes the previous build and copies `/public` first.
-
-Everything happens with plain Node APIs — no heavy bundlers!
-
----
-
-## 🚑  Troubleshooting
-
-| Symptom | Fix |
-|---------|-----|
-| `TypeError: inquirer.prompt is not a function` | You are on Inquirer ≥9 but using CommonJS `require`.  Either pin `inquirer@8` *(the starter kit already does)* or import it via `const inquirer = (await import('inquirer')).default;`. |
-| `ENOENT spawn npx` on `watch` | npm 10 no longer installs `npx`.  The CLI now calls `nodemon` directly — update to ≥ *commit abc123* or reinstall the latest package. |
-| Pages build but images are broken | Ensure your `<img src="/public/...">` paths really start with `/public/`.  The builder rewrites only those. |
-
----
-
-## 🤝  Contributing
-
-PRs and issues are welcome! By contributing you agree to license your work under the Apache 2.0 license.
+| Command | Description |
+|---------|-------------|
+| `placeholder-framework create <dir>` | Scaffold a new project in `<dir>`. |
+| `placeholder-framework build <dir>` | One‑off build into `/build/<name>`. |
+| `placeholder-framework watch <dir>` | Watch for changes & rebuild. |
 
 ---
 
 ## 📝  License
 
-Apache 2.0 © 2025 Placeholder Framework contributors
+Apache 2.0 © 2025 `placeholder-framework` contributors
