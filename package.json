@@ -1,0 +1,30 @@
+{
+  "name": "placeholder-framework",
+  "version": "1.0.0",
+  "description": "Static-site builder based on HTML placeholders",
+  "bin": {
+    "placeholder-framework": "cli.js"
+  },
+  "main": "_build.js",
+  "files": [
+    "cli.js",
+    "_build.js",
+    "_empty.json",
+    "starter-template"
+  ],
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^8.2.6",
+    "yargs": "^17.7.2",
+    "js-beautify": "^1.15.4",
+    "nodemon": "^3.1.9"
+  },
+  "devDependencies": {
+  
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "MIT"
+}

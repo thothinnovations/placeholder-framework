@@ -1,0 +1,7 @@
+/.unused
+
+# build
+/getmypage
+
+# dependencies
+/node_modules

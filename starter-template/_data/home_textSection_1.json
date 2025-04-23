@@ -1,0 +1,8 @@
+{
+    "headingText": "<span style='color: #7165F9; font-weight: 700;'>Hello World!</span>",
+    "paragraphs": [
+        "<span class='fs-5'>You've successfully loaded up <code>placeholder-framework</code> with a starter template.</span>",
+        "It includes <a href='https://getbootstrap.com/docs/5.3/getting-started/introduction/'>Bootstrap 5.3</a> via the <a href='https://www.jsdelivr.com/package/npm/bootstrap'>jsDelivr CDN</a> with additional <code>.js</code> and <code>.css</code> files.",
+        "Feel free to copy or modify any parts of this example."
+    ]
+}

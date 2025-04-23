@@ -1,0 +1,9 @@
+{
+    "headingText": "Start building your pages",
+    "paragraphs": [
+        "<span class='fs-5'>Now you can start using <code>placeholder-framework</code> to build your own pages.</span>",
+        "Check the <code>index.html</code> file under the <code>/_pages</code> folder to see or edit this page's full source code.",
+        "You can call <b>and reuse</b> any mapped placeholder from <code>componentsMap.js</code> inside any <code>.html</code> under <code>/_pages</code><br/><i>without any imports, <b>as much and as many times as you want!</b></i>"
+    ],
+    "classes": "px-0 pb-1"
+}
