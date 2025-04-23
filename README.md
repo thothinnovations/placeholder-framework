@@ -5,7 +5,7 @@ A zero‑config static‑site generator that swaps HTML **comment placeholders**
 
 [![npm](https://img.shields.io/npm/v/placeholder-framework?style=flat-square)](https://www.npmjs.com/package/placeholder-framework)
 [![node](https://img.shields.io/node/v/placeholder-framework?style=flat-square)](https://nodejs.org/)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg)](LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-yellow.svg)](LICENSE.md)
 
 ---
 
