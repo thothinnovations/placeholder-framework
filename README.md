@@ -28,6 +28,11 @@ A zero‑config static‑site generator that swaps HTML **comment placeholders**
 npm install -g placeholder-framework
 ```
 
+```bash
+# or clone the repo and install locally
+cd /placeholder-framework && npm link
+```
+
 > Requires **Node 16+**.
 
 <br>
@@ -36,12 +41,50 @@ npm install -g placeholder-framework
 
 ## ⚡️ Quick start
 
+### 1. Installing & creating a project:
+
 ```bash
-placeholder-framework create ./MySite
-cd MySite
-placeholder-framework watch .   #   live‑rebuilds + Live‑Server (VS Code)
+# 1. install the latest release globally
+npm install -g placeholder-framework
+
+# 2. create a new project in ./_MyPage
+placeholder-framework create ./_MyPage
 ```
-Start your Live‑Server (if using VS Code) and you should see your page.
+
+Now, answer three interactive prompts:
+
+| Question | Meaning |
+|----------|---------|
+| *Do you want to use the starter template?* | **Y** → creates the project using a starter template.<br>**N** → create an empty scaffold (see below). |
+| *Enter a name for your build:* | The folder in which your static will be built, e.g. `getmypage` |
+| *Are you using VS Code?* | **Y** → adds a VS Code *Task* & sets *Live Server* root folder.<br>**N** → skips editor integration. |
+
+<br>
+
+#### What gets generated with an empty scaffold:
+
+```
+_MyPage/
+├─ public/          # your static assets (copied verbatim)
+├─ _components/     # `*.js` component functions
+├─ _data/           # `*.json` data for components
+├─ _pages/          # source `.html` files (placeholders allowed)
+│  └─ index.html
+├─ componentsMap.js # placeholder ↔ component ↔ data mapping
+└─ package.json     # local dev scripts + buildFolder name
+```
+
+Projects using the `starter template` comes with the same structure, but features a demo-page, styled with *Bootstrap 5.3*, including built-in working components.
+<br>
+
+### 2. Live‑rebuilding & serving your project:
+
+```bash
+cd MySite
+placeholder-framework watch .
+```
+Then, start *Live Server* (if using VS Code) and you should see your page.
+Any changes made to your project should be displayed in real-time now (if not, just refresh the page).
 <br>
 
 ---
@@ -182,6 +225,38 @@ Feel free to add more pages under `/_pages` and more components/data/mappings as
 | `placeholder-framework create <dir>` | Scaffold a new project in `<dir>`. |
 | `placeholder-framework build <dir>` | One‑off build into `/build/<name>`. |
 | `placeholder-framework watch <dir>` | Watch for changes & rebuild. |
+
+---
+
+## ⚙️  VS Code integration
+
+If you answered **Y** to *Are you using VS Code?* the CLI will:
+
+1. Append a task to `.vscode/tasks.json`:
+   ```jsonc
+   {
+     "label": "[placeholder-framework]: \"/getmypage\" from... \"_MyPage\"",
+     "type": "shell",
+     "command": "npm run watch:_MyPage",
+     "options": { "cwd": "${workspaceFolder}/_MyPage" },
+     "problemMatcher": []
+   }
+   ```
+2. Set `liveServer.settings.port = 3000` and `liveServer.settings.root = "/getmypage"` in `.vscode/settings.json` so hitting **Go Live** serves your freshly built pages.
+
+---
+
+## 🏗️  How the build works
+
+1. `_build.js` reads `componentsMap.js` and builds a lookup table.
+2. For every `*.html` under `/_pages`, it:
+   * loads the referenced component & data,
+   * replaces the placeholder comment with rendered HTML,
+   * rewrites `/public/...` URLs so they remain correct at any folder depth,
+   * prettifies the final markup (`js-beautify`).
+3. Finally, it wipes the previous build and creates a new one, copying the `/public` folder to it.
+
+Everything happens with plain Node APIs — no heavy bundlers!
 
 ---
 
